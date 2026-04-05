@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harness Engineering 完全指南</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        code, pre { font-family: 'JetBrains Mono', monospace; }
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .mermaid {
+            background: transparent !important;
+        }
+        .nav-active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .section-fade {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+        .section-fade.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-slate-200 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                    <span class="font-bold text-xl tracking-tight">Harness Engineering</span>
+                </div>
+                <div class="hidden md:flex items-center gap-1 bg-slate-100 rounded-full p-1">
+                    <button onclick="scrollToSection('principles')" class="nav-btn px-4 py-2 rounded-full text-sm font-medium transition-all">核心原理</button>
+                    <button onclick="scrollToSection('practices')" class="nav-btn px-4 py-2 rounded-full text-sm font-medium transition-all">实践指南</button>
+                    <button onclick="scrollToSection('cases')" class="nav-btn px-4 py-2 rounded-full text-sm font-medium transition-all">案例参考</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white to-purple-50"></div>
+        <div class="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-indigo-100/30 to-transparent"></div>
+
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-4xl mx-auto">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 text-indigo-700 text-sm font-medium mb-6">
+                    <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                    Agent = Model + Harness
+                </div>
+                <h1 class="text-5xl md:text-6xl font-bold tracking-tight mb-6">
+                    <span class="gradient-text">Harness Engineering</span>
+                    <br>
+                    <span class="text-slate-700">完全指南</span>
+                </h1>
+                <p class="text-xl text-slate-600 leading-relaxed mb-8 max-w-3xl mx-auto">
+                    探索如何设计和构建系统，让 AI Agent 可靠地工作。从 OpenAI 的百万行代码实验到 LangChain 的性能飞跃，揭示 Harness 工程的核心原理与实践智慧。
+                </p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button onclick="scrollToSection('principles')" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all flex items-center gap-2">
+                        开始探索
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+                        </svg>
+                    </button>
+                    <button onclick="scrollToSection('cases')" class="px-8 py-4 bg-white text-slate-700 border border-slate-200 rounded-xl font-semibold hover:bg-slate-50 hover:border-slate-300 transition-all">
+                        查看案例
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="relative mt-16 max-w-6xl mx-auto px-4">
+            <div class="bg-white rounded-2xl shadow-xl border border-slate-100 p-8">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-indigo-600">100万+</div>
+                        <div class="text-sm text-slate-500 mt-1">OpenAI 生成代码行数</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-purple-600">Top 5</div>
+                        <div class="text-sm text-slate-500 mt-1">LangChain  benchmark 排名</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-pink-600">1000+</div>
+                        <div class="text-sm text-slate-500 mt-1">Stripe Minions 每周 PR</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-orange-600">1/10</div>
+                        <div class="text-sm text-slate-500 mt-1">开发时间缩减比例</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Principles Section -->
+    <section id="principles" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 section-fade">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">核心原理</h2>
+                <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+                    Harness Engineering 是设计和实现系统的学科，这些系统约束、告知、验证和纠正 AI Agent 的行为
+                </p>
+            </div>
+
+            <!-- The Horse Metaphor -->
+            <div class="grid lg:grid-cols-2 gap-12 items-center mb-20">
+                <div class="section-fade">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-sm font-medium mb-4">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0z"/>
+                        </svg>
+                        马与马具的隐喻
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-800 mb-4">Harness 的命名来源</h3>
+                    <p class="text-slate-600 leading-relaxed mb-4">
+                        "Harness" 一词源自马具装备——缰绳、马鞍、马衔——用于引导强大但不可预测的动物朝正确方向前进的全套装备。这个隐喻是刻意的：
+                    </p>
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-3">
+                            <span class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0 font-semibold">马</span>
+                            <span class="text-slate-600">AI 模型——强大、快速，但自己不知道往哪里去</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0 font-semibold">具</span>
+                            <span class="text-slate-600">Harness 基础设施——约束、护栏、反馈循环，引导模型的力量 productive</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="w-8 h-8 rounded-lg bg-pink-100 text-pink-600 flex items-center justify-center flex-shrink-0 font-semibold">手</span>
+                            <span class="text-slate-600">人类工程师——提供方向，而不是亲自奔跑</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="section-fade">
+                    <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-8 border border-indigo-100">
+                        <div class="mermaid">
+graph TB
+    subgraph "AI Agent System"
+        MODEL["🐴 AI Model<br/>Powerful but directionless"]
+        HARNESS["🎠 Harness<br/>Constraints & Feedback"]
+        HUMAN["👤 Human Engineer<br/>Direction & Intent"]
+    end
+
+    HUMAN -->|"Designs"| HARNESS
+    HARNESS -->|"Channels"| MODEL
+    MODEL -->|"Executes within"| HARNESS
+    HARNESS -->|"Feedback to"| HUMAN
+
+    style MODEL fill:#fef3c7,stroke:#f59e0b,stroke-width:3px
+    style HARNESS fill:#e0e7ff,stroke:#6366f1,stroke-width:3px
+    style HUMAN fill:#fce7f3,stroke:#ec4899,stroke-width:3px
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Three Pillars -->
+            <div class="mb-20">
+                <div class="text-center mb-12 section-fade">
+                    <h3 class="text-2xl md:text-3xl font-bold text-slate-800">三大支柱</h3>
+                    <p class="text-slate-600 mt-2">OpenAI 框架将 Harness Engineering 组织为三个核心类别</p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- Pillar 1: Context Engineering -->
+                    <div class="card-hover bg-white rounded-2xl p-8 border border-slate-200 shadow-sm section-fade">
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mb-6">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-slate-800 mb-3">上下文工程</h4>
+                        <p class="text-slate-600 mb-4 text-sm leading-relaxed">
+                            确保 Agent 在正确的时间获得正确的信息。关键在于：从 Agent 的视角看，任何无法在其上下文中访问的内容都不存在。
+                        </p>
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-2 text-xs text-slate-500">
+                                <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                AGENTS.md / CLAUDE.md 文件
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-slate-500">
+                                <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                目录结构映射
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-slate-500">
+                                <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                可观测性数据
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pillar 2: Architectural Constraints -->
+                    <div class="card-hover bg-white rounded-2xl p-8 border border-slate-200 shadow-sm section-fade">
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-6">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+                            </svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-slate-800 mb-3">架构约束</h4>
+                        <p class="text-slate-600 mb-4 text-sm leading-relaxed">
+                            不是告诉 Agent "写好代码"，而是通过机械手段强制执行好的代码标准。约束解决方案空间实际上使 Agent 更有生产力。
+                        </p>
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-2 text-xs text-slate-500">
+                                <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                                依赖分层（Types → Config → Repo → ...）
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-slate-500">
+                                <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                                确定性 Linter 和结构测试
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-slate-500">
+                                <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                                Pre-commit Hooks
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pillar 3: Entropy Management -->
+                    <div class="card-hover bg-white rounded-2xl p-8 border border-slate-200 shadow-sm section-fade">
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center mb-6">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-slate-800 mb-3">熵管理</h4>
+                        <p class="text-slate-600 mb-4 text-sm leading-relaxed">
+                            最被低估的组件。AI 生成的代码库会随时间积累熵——文档漂移、命名规范分歧、死代码累积。
+                        </p>
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-2 text-xs text-slate-500">
+                                <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+                                文档一致性 Agent
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-slate-500">
+                                <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+                                约束违规扫描器
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-slate-500">
+                                <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+                                依赖审计和清理
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Agentic Workflow Diagram -->
+            <div class="mb-20">
+                <div class="text-center mb-12 section-fade">
+                    <h3 class="text-2xl md:text-3xl font-bold text-slate-800">Agentic 工作流</h3>
+                    <p class="text-slate-600 mt-2">Harness 驱动的反馈循环与执行流程</p>
+                </div>
+                <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm section-fade">
+                    <div class="mermaid">
+flowchart TB
+    subgraph Feedforward["🎯 Feedforward Control - 前馈控制"]
+        A1[AGENTS.md / CLAUDE.md] --> A2[Skills & Context]
+        A2 --> A3[Architecture Constraints]
+        A3 --> A4[Static Analysis]
+    end
+
+    subgraph AgentLoop["🔄 Agent Execution Loop"]
+        B1[Agent Request] --> B2[Model Generation]
+        B2 --> B3[Tool Execution]
+        B3 --> B4{Check Complete?}
+        B4 -->|No| B2
+        B4 -->|Yes| B5[Submit]
+    end
+
+    subgraph Feedback["📊 Feedback Control - 反馈控制"]
+        C1[Self-Verification] --> C2[Tests & CI]
+        C2 --> C3[Code Review]
+        C3 --> C4[Runtime Observability]
+        C4 --> C5[Loop Detection]
+    end
+
+    Feedforward --> AgentLoop
+    AgentLoop --> Feedback
+    Feedback -->|Correct & Iterate| AgentLoop
+
+    style Feedforward fill:#dbeafe,stroke:#3b82f6,stroke-width:2px
+    style AgentLoop fill:#fef3c7,stroke:#f59e0b,stroke-width:2px
+    style Feedback fill:#fce7f3,stroke:#ec4899,stroke-width:2px
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feedforward vs Feedback -->
+            <div class="grid md:grid-cols-2 gap-8 mb-20">
+                <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-8 border border-blue-100 section-fade">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-slate-800">Feedforward 前馈控制</h4>
+                    </div>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                        预期 Agent 的行为并试图在它行动之前进行引导。增加 Agent 首次就创造好结果的概率。
+                    </p>
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2 text-sm text-slate-700">
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                            AGENTS.md / CLAUDE.md 文档
+                        </div>
+                        <div class="flex items-center gap-2 text-sm text-slate-700">
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                            Skills 和 MCP Servers
+                        </div>
+                        <div class="flex items-center gap-2 text-sm text-slate-700">
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                            架构规范和分层
+                        </div>
+                        <div class="flex items-center gap-2 text-sm text-slate-700">
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                            LSP 和代码智能
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-pink-50 to-rose-50 rounded-2xl p-8 border border-pink-100 section-fade">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-pink-500 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-slate-800">Feedback 反馈控制</h4>
+                    </div>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                        在 Agent 行动之后进行观察并帮助它自我纠正。当它们产生针对 LLM 消费优化的信号时特别强大。
+                    </p>
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2 text-sm text-slate-700">
+                            <span class="w-1.5 h-1.5 rounded-full bg-pink-500"></span>
+                            自我验证循环
+                        </div>
+                        <div class="flex items-center gap-2 text-sm text-slate-700">
+                            <span class="w-1.5 h-1.5 rounded-full bg-pink-500"></span>
+                            测试和 CI 验证
+                        </div>
+                        <div class="flex items-center gap-2 text-sm text-slate-700">
+                            <span class="w-1.5 h-1.5 rounded-full bg-pink-500"></span>
+                            代码审查 Agent
+                        </div>
+                        <div class="flex items-center gap-2 text-sm text-slate-700">
+                            <span class="w-1.5 h-1.5 rounded-full bg-pink-500"></span>
+                            运行时可观测性
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Computational vs Inferential -->
+            <div class="bg-slate-900 rounded-2xl p-8 text-white section-fade">
+                <h4 class="text-xl font-bold mb-6 flex items-center gap-2">
+                    <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                    </svg>
+                    控制类型：计算型 vs 推理型
+                </h4>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-slate-800 rounded-xl p-6">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-lg bg-green-500/20 text-green-400 flex items-center justify-center">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+                                </svg>
+                            </div>
+                            <h5 class="font-semibold text-lg">Computational 计算型</h5>
+                        </div>
+                        <p class="text-slate-400 text-sm mb-4">确定性、快速、由 CPU 执行。毫秒到秒级运行，结果可靠。</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-2 py-1 bg-slate-700 rounded text-xs">测试</span>
+                            <span class="px-2 py-1 bg-slate-700 rounded text-xs">Linter</span>
+                            <span class="px-2 py-1 bg-slate-700 rounded text-xs">类型检查</span>
+                            <span class="px-2 py-1 bg-slate-700 rounded text-xs">结构分析</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800 rounded-xl p-6">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                                </svg>
+                            </div>
+                            <h5 class="font-semibold text-lg">Inferential 推理型</h5>
+                        </div>
+                        <p class="text-slate-400 text-sm mb-4">语义分析、AI 代码审查。由 GPU/NPU 运行，更慢且非确定性。</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-2 py-1 bg-slate-700 rounded text-xs">语义分析</span>
+                            <span class="px-2 py-1 bg-slate-700 rounded text-xs">AI 审查</span>
+                            <span class="px-2 py-1 bg-slate-700 rounded text-xs">LLM as Judge</span>
+                            <span class="px-2 py-1 bg-slate-700 rounded text-xs">架构评审</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Practices Section -->
+    <section id="practices" class="py-20 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 section-fade">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">实践指南</h2>
+                <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+                    从基础设置到生产级系统的渐进式实现路径
+                </p>
+            </div>
+
+            <!-- Self-Verification Loop -->
+            <div class="mb-20">
+                <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm section-fade">
+                    <h3 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        自我验证循环
+                    </h3>
+                    <p class="text-slate-600 mb-6">
+                        今天的模型是卓越的自我改进机器。自我验证允许 Agent 在一个运行中通过反馈自我改进。但它们没有自然倾向于进入这个构建-验证循环。
+                    </p>
+                    <div class="mermaid">
+flowchart LR
+    A[1. Planning & Discovery<br/>规划与发现] --> B[2. Build<br/>构建]
+    B --> C[3. Verify<br/>验证]
+    C --> D{Pass?}
+    D -->|No| E[4. Fix<br/>修复]
+    E --> B
+    D -->|Yes| F[Submit<br/>提交]
+
+    style A fill:#dbeafe,stroke:#3b82f6
+    style B fill:#fef3c7,stroke:#f59e0b
+    style C fill:#d1fae5,stroke:#10b981
+    style E fill:#fee2e2,stroke:#ef4444
+    style F fill:#d1fae5,stroke:#10b981
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementation Levels -->
+            <div class="grid md:grid-cols-3 gap-8 mb-20">
+                <!-- Level 1 -->
+                <div class="card-hover bg-white rounded-2xl p-6 border border-slate-200 shadow-sm section-fade">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg">1</div>
+                        <div>
+                            <h4 class="font-bold text-slate-800">基础 Harness</h4>
+                            <p class="text-xs text-slate-500">单人开发者</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3 mb-4">
+                        <div class="flex items-start gap-2">
+                            <svg class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span class="text-sm text-slate-600">CLAUDE.md 或 .cursorrules</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <svg class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span class="text-sm text-slate-600">Pre-commit hooks</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <svg class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span class="text-sm text-slate-600">自验证测试套件</span>
+                        </div>
+                    </div>
+                    <div class="pt-4 border-t border-slate-100">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-500">设置时间</span>
+                            <span class="font-semibold text-blue-600">1-2 小时</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Level 2 -->
+                <div class="card-hover bg-white rounded-2xl p-6 border border-slate-200 shadow-sm section-fade">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-lg">2</div>
+                        <div>
+                            <h4 class="font-bold text-slate-800">团队 Harness</h4>
+                            <p class="text-xs text-slate-500">3-10 人团队</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3 mb-4">
+                        <div class="flex items-start gap-2">
+                            <svg class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span class="text-sm text-slate-600">AGENTS.md 团队规范</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <svg class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span class="text-sm text-slate-600">CI 强制架构约束</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <svg class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span class="text-sm text-slate-600">共享 Prompt 模板</span>
+                        </div>
+                    </div>
+                    <div class="pt-4 border-t border-slate-100">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-500">设置时间</span>
+                            <span class="font-semibold text-purple-600">1-2 天</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Level 3 -->
+                <div class="card-hover bg-white rounded-2xl p-6 border border-slate-200 shadow-sm section-fade">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-lg">3</div>
+                        <div>
+                            <h4 class="font-bold text-slate-800">生产 Harness</h4>
+                            <p class="text-xs text-slate-500">企业级组织</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3 mb-4">
+                        <div class="flex items-start gap-2">
+                            <svg class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span class="text-sm text-slate-600">自定义中间件层</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <svg class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span class="text-sm text-slate-600">可观测性集成</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <svg class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span class="text-sm text-slate-600">熵管理 Agent</span>
+                        </div>
+                    </div>
+                    <div class="pt-4 border-t border-slate-100">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-500">设置时间</span>
+                            <span class="font-semibold text-orange-600">1-2 周</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cases Section -->
+    <section id="cases" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 section-fade">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">案例参考</h2>
+                <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+                    来自行业领导者的真实 Harness Engineering 实践
+                </p>
+            </div>
+
+            <!-- OpenAI Case -->
+            <div class="mb-12 section-fade">
+                <div class="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-8 border border-emerald-100">
+                    <div class="flex items-start gap-6">
+                        <div class="w-16 h-16 rounded-2xl bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-2">
+                                <h3 class="text-2xl font-bold text-slate-800">OpenAI：百万行代码实验</h3>
+                                <span class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-medium">Production</span>
+                            </div>
+                            <p class="text-slate-600 mb-6">
+                                OpenAI 团队用 5 个月时间构建了一个超过 100 万行代码的产品，其中<strong>零行人工编写代码</strong>。全部代码由 Codex Agent 在精心设计的 Harness 中生成。
+                            </p>
+                            <div class="grid md:grid-cols-3 gap-4 mb-6">
+                                <div class="bg-white rounded-xl p-4 border border-emerald-100">
+                                    <div class="text-3xl font-bold text-emerald-600">5个月</div>
+                                    <div class="text-sm text-slate-500">开发周期</div>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 border border-emerald-100">
+                                    <div class="text-3xl font-bold text-emerald-600">100万+</div>
+                                    <div class="text-sm text-slate-500">代码行数</div>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 border border-emerald-100">
+                                    <div class="text-3xl font-bold text-emerald-600">3名</div>
+                                    <div class="text-sm text-slate-500">工程师团队</div>
+                                </div>
+                            </div>
+                            <div class="bg-slate-800 rounded-xl p-4">
+                                <h4 class="text-white font-semibold mb-2">关键 Harness 组件</h4>
+                                <ul class="space-y-1 text-sm text-slate-300">
+                                    <li>• 分层领域架构 + 自定义 Linter 强制执行</li>
+                                    <li>• 结构化文档体系（AGENTS.md 作为地图）</li>
+                                    <li>• 自我验证 + 定期熵清理循环</li>
+                                    <li>• Playwright MCP 驱动的 QA Agent</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LangChain & Stripe Cases -->
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- LangChain -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm section-fade">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800">LangChain</h4>
+                            <p class="text-xs text-slate-500">Top 30 → Top 5</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 mb-4">
+                        仅通过优化 Harness（保持模型固定），Terminal Bench 2.0 得分从 52.8% 提升到 66.5%，排名从 Top 30 跃升至 <strong>Top 5</strong>。
+                    </p>
+                    <div class="bg-slate-50 rounded-lg p-3">
+                        <div class="text-xs font-semibold text-slate-700 mb-2">关键改进</div>
+                        <div class="flex flex-wrap gap-1">
+                            <span class="px-2 py-0.5 bg-white rounded text-xs border border-slate-200">自我验证循环</span>
+                            <span class="px-2 py-0.5 bg-white rounded text-xs border border-slate-200">上下文工程</span>
+                            <span class="px-2 py-0.5 bg-white rounded text-xs border border-slate-200">循环检测</span>
+                            <span class="px-2 py-0.5 bg-white rounded text-xs border border-slate-200">推理三明治</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stripe -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm section-fade">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800">Stripe</h4>
+                            <p class="text-xs text-slate-500">Minions @ Scale</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 mb-4">
+                        Stripe 的内部编码 Agent "Minions" 现在每周产生 <strong>超过 1000 个合并的 Pull Request</strong>。整个流程从 Slack 任务到合并完全自动化。
+                    </p>
+                    <div class="bg-slate-50 rounded-lg p-3">
+                        <div class="text-xs font-semibold text-slate-700 mb-2">工作流程</div>
+                        <div class="flex items-center gap-1 text-xs text-slate-600">
+                            <span class="px-2 py-0.5 bg-white rounded border border-slate-200">Slack 任务</span>
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                            <span class="px-2 py-0.5 bg-white rounded border border-slate-200">Minion 编码</span>
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                            <span class="px-2 py-0.5 bg-white rounded border border-slate-200">CI 通过</span>
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                            <span class="px-2 py-0.5 bg-white rounded border border-slate-200">人工审核合并</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Patterns -->
+            <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm section-fade">
+                <h3 class="text-2xl font-bold text-slate-800 mb-8">关键模式与实践</h3>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="space-y-6">
+                        <div class="flex gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-slate-800">渐进式披露</h4>
+                                <p class="text-sm text-slate-600 mt-1">Agent 从一个稳定的小切入点开始，被引导去哪里查看，而不是被淹没在 1000 页的说明书中。</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-slate-800">Ralph Wiggum 循环</h4>
+                                <p class="text-sm text-slate-600 mt-1">使用 hooks 或中间件强制 Agent 在退出时继续执行验证，防止过早结束任务。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="flex gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-pink-100 text-pink-600 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-slate-800">推理三明治</h4>
+                                <p class="text-sm text-slate-600 mt-1">在规划和验证阶段使用高推理预算 (xhigh)，在实现阶段使用中等级别 (high)，在时间预算内获得最佳质量。</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-slate-800">垃圾回收机制</h4>
+                                <p class="text-sm text-slate-600 mt-1">定期运行 Codex 任务扫描漂移、更新质量等级，并发起重构 PR。类似于垃圾回收，持续小额偿还技术债务。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Multi-Agent Architecture -->
+            <div class="bg-slate-900 rounded-2xl p-8 text-white section-fade">
+                <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                    <svg class="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                    多 Agent 架构（Anthropic 设计）
+                </h3>
+                <p class="text-slate-300 mb-6">
+                    受 GAN 启发的设计，使用生成器和评估器 Agent 创建反馈循环，推动生成器向更强的输出发展。
+                </p>
+                <div class="mermaid mb-6">
+flowchart TB
+    subgraph Input["📝 Input"]
+        PROMPT["用户 Prompt<br/>1-4 句子"]
+    end
+
+    subgraph Planner["📋 Planner Agent"]
+        P1[扩写产品 Spec] --> P2[定义功能范围]
+        P2 --> P3[规划 Sprints]
+    end
+
+    subgraph SprintContract["🤝 Sprint Contract"]
+        SC1[Generator 提案] <--> SC2[Evaluator 审核]
+        SC2 --> SC3[达成 Done 定义]
+    end
+
+    subgraph Generator["🔨 Generator Agent"]
+        G1[按 Sprint 实现] --> G2[自评估]
+        G2 --> G3[提交 QA]
+    end
+
+    subgraph Evaluator["🔍 Evaluator Agent"]
+        E1[Playwright MCP] --> E2[功能测试]
+        E2 --> E3[评分标准]
+        E3 --> E4{Pass?}
+        E4 -->|No| E5[详细反馈]
+    end
+
+    subgraph Output["✅ Output"]
+        OUT[完整应用]
+    end
+
+    PROMPT --> Planner
+    Planner --> SprintContract
+    SprintContract --> Generator
+    Generator --> Evaluator
+    E4 -->|Yes| OUT
+    E5 --> Generator
+
+    style Planner fill:#dbeafe,stroke:#3b82f6,stroke-width:2px
+    style Generator fill:#fef3c7,stroke:#f59e0b,stroke-width:2px
+    style Evaluator fill:#fce7f3,stroke:#ec4899,stroke-width:2px
+                </div>
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div class="bg-slate-800 rounded-lg p-4">
+                        <div class="text-blue-400 font-semibold mb-1">Planner</div>
+                        <p class="text-sm text-slate-400">将简单提示扩展为完整产品 spec，定义功能范围和 Sprint 规划</p>
+                    </div>
+                    <div class="bg-slate-800 rounded-lg p-4">
+                        <div class="text-amber-400 font-semibold mb-1">Generator</div>
+                        <p class="text-sm text-slate-400">按 Sprint 实现功能，自评估后提交给 QA</p>
+                    </div>
+                    <div class="bg-slate-800 rounded-lg p-4">
+                        <div class="text-pink-400 font-semibold mb-1">Evaluator</div>
+                        <p class="text-sm text-slate-400">使用 Playwright MCP 测试运行中的应用，按标准评分</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div class="md:col-span-2">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                        </div>
+                        <span class="font-bold text-xl">Harness Engineering</span>
+                    </div>
+                    <p class="text-slate-400 text-sm leading-relaxed max-w-md">
+                        设计和实现系统，约束、告知、验证和纠正 AI Agent 行为的工程学科。模型是商品，Harness 是护城河。
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">核心概念</h4>
+                    <ul class="space-y-2 text-sm text-slate-400">
+                        <li>Agent = Model + Harness</li>
+                        <li>上下文工程</li>
+                        <li>架构约束</li>
+                        <li>熵管理</li>
+                        <li>Feedforward & Feedback</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">参考资源</h4>
+                    <ul class="space-y-2 text-sm text-slate-400">
+                        <li>OpenAI Harness Engineering</li>
+                        <li>Anthropic Long-running Agents</li>
+                        <li>LangChain Deep Agents</li>
+                        <li>Martin Fowler Harness Guide</li>
+                        <li>NxCode Complete Guide</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-sm text-slate-500">
+                    Generated for Harness Engineering Research
+                </p>
+                <p class="text-sm text-slate-500">
+                    2026 · Built with Tailwind CSS & Mermaid.js
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+
+        // Smooth scroll to section
+        function scrollToSection(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                const offset = 80;
+                const bodyRect = document.body.getBoundingClientRect().top;
+                const elementRect = element.getBoundingClientRect().top;
+                const elementPosition = elementRect - bodyRect;
+                const offsetPosition = elementPosition - offset;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        // Navigation active state
+        const navBtns = document.querySelectorAll('.nav-btn');
+        navBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                navBtns.forEach(b => b.classList.remove('nav-active'));
+                this.classList.add('nav-active');
+            });
+        });
+
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.section-fade').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Update active nav on scroll
+        window.addEventListener('scroll', () => {
+            const sections = ['principles', 'practices', 'cases'];
+            let current = '';
+
+            sections.forEach(section => {
+                const element = document.getElementById(section);
+                if (element) {
+                    const rect = element.getBoundingClientRect();
+                    if (rect.top <= 100) {
+                        current = section;
+                    }
+                }
+            });
+
+            navBtns.forEach(btn => {
+                btn.classList.remove('nav-active');
+                if (btn.getAttribute('onclick').includes(current)) {
+                    btn.classList.add('nav-active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
