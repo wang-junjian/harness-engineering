@@ -4,12 +4,32 @@
 
 ![](/harness-engineering-guide.jpeg)
 
-**其它模型生成的 Harness Engineering 资源**：
+## Claude Code 提示词
+
+```markdown
+请深入调研 `docs` 目录下所有关于 **Harness Engineering** 的文档，通过读取文件内容总结其核心原理、技术架构与最佳实践。
+
+**任务要求：**
+1. **自主调研**：先遍历目录并读取关键文档，理解 Harness 是如何定义 AI 运行环境和反馈机制的。
+2. **产出网页**：直接在当前目录下生成一个 `harness_engineering_guide.html` 文件。
+3. **网页要求**：
+   - 使用 **Tailwind CSS** 渲染出专业、现代的 UI 界面。
+   - 包含“核心原理”、“实践指南”和“案例参考”等板块。
+   - 必须集成 **Mermaid.js** 来可视化其 Agentic 工作流（例如反馈循环或环境拓扑）。
+```
+
+### 使用大模型生成的 Harness Engineering 文档：
 - [doubao-seed-2.0-pro](/harness_doubao-seed-2.0-pro/)
 - [doubao-seed-2.0-code](/harness_doubao-seed-2.0-code/)
 - [kimi-k2.5](/harness_kimi-k2.5/)
 - [minimax-m2.5](/harness_minimax-m2.5/)
 - [glm-4.7](/harness_glm-4.7/)
+
+### 本文档生成提示词（doubao-seed-2.0-pro）：
+
+```markdown
+当前目录下的 harness_xxx 分别是 Claude Code 使用不同的模型分析的结果，使用的提示词是上面的内容。你参考这些分析结果对 docs 目录下的文档进行你的分析和总结，生成一个全面的 Harness Engineering 学习指南，分别保存为 `harness_engineering_guide.md` 和 `harness_engineering_guide.html` 。
+```
 
 ## 📚 目录
 
