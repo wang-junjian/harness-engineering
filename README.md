@@ -1,6 +1,15 @@
-# Harness Engineering 全面学习指南
+# Harness Engineering（驾驭工程）：2026 AI 软件工程新范式
 
 > **Harness Engineering 是 AI 时代的全新软件工程学科** —— 设计和实现系统来约束、引导、验证和修正 AI 智能体的行为，让强大但不可预测的 AI 模型能够可靠地完成复杂任务。
+
+![](/harness-engineering-guide.jpeg)
+
+**其它模型生成的 Harness Engineering 资源**：
+- [doubao-seed-2.0-pro](/harness_doubao-seed-2.0-pro/)
+- [doubao-seed-2.0-code](/harness_doubao-seed-2.0-code/)
+- [kimi-k2.5](/harness_kimi-k2.5/)
+- [minimax-m2.5](/harness_minimax-m2.5/)
+- [glm-4.7](/harness_glm-4.7/)
 
 ## 📚 目录
 
